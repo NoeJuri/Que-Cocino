@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" xintegrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -54,7 +55,7 @@
                     <div class="space-y-6">
                         <div>
                             <label for="ingredientes" class="block text-sm font-medium text-gray-700 mb-2">Ingresa uno o dos ingredientes principales</label>
-                            <input type="text" id="ingredientes" placeholder="Ej: Batata, acelga, brócoli..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition">
+                            <input type="text" id="ingredientes" placeholder="Ej: Lentejas, pollo, palta..." class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition">
                         </div>
                         <div>
                             <label for="comensales" class="block text-sm font-medium text-gray-700 mb-2">¿Cuántos son a la mesa?</label>
@@ -65,6 +66,14 @@
                                 ¡Dame Ideas!
                             </button>
                         </div>
+                        <!-- INICIO DEL CAMBIO: Botón "Sorpréndeme" -->
+                        <div class="text-center">
+                            <span class="text-sm text-gray-500">¿No sabes qué buscar?</span>
+                            <button id="sorprendeme-btn" class="text-orange-600 font-semibold hover:underline ml-1">
+                                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>Sorpréndeme
+                            </button>
+                        </div>
+                        <!-- FIN DEL CAMBIO -->
                     </div>
                 </div>
             </main>
@@ -99,7 +108,7 @@
     </div>
 
     <!-- ==================================================== -->
-    <!-- ============== INICIO DEL FOOTER ACTUALIZADO ========= -->
+    <!-- ============== FOOTER ============================== -->
     <!-- ==================================================== -->
     <footer class="text-center py-6">
         <p class="text-sm text-gray-500">
@@ -107,13 +116,9 @@
             <a href="https://codeki.com.ar/ia-aplicada-a-contextos-organizacionales/" target="_blank" rel="noopener noreferrer" class="underline text-orange-600 hover:text-orange-800">Codeki</a>.
         </p>
         <div class="mt-2">
-            <!-- Se actualizó el href para apuntar al archivo PDF -->
             <a href="https://drive.google.com/file/d/1kxD3IIVSG7rOe3Mwwac1aGXFOWMwMwMl/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="text-sm text-blue-600 underline hover:text-blue-800">Ver cómo</a>
         </div>
     </footer>
-    <!-- ==================================================== -->
-    <!-- ================ FIN DEL FOOTER ACTUALIZADO ========== -->
-    <!-- ==================================================== -->
 
 
     <script>
@@ -125,6 +130,7 @@
         const buscarBtn = document.getElementById('buscar-btn');
         const volverABuscarBtn = document.getElementById('volver-a-buscar-btn');
         const volverAResultadosBtn = document.getElementById('volver-a-resultados-btn');
+        const sorprendemeBtn = document.getElementById('sorprendeme-btn'); // <-- Nuevo elemento
         
         const resultadosTitulo = document.getElementById('resultados-titulo');
         const cardsContainer = document.getElementById('cards-container');
@@ -132,79 +138,91 @@
         const ingredientesInput = document.getElementById('ingredientes');
         const comensalesInput = document.getElementById('comensales');
 
-        // --- BASE DE DATOS DE RECETAS (con más detalle) ---
+        // --- BASE DE DATOS ---
         const baseDeRecetas = [
             {
                 id: "bunuelos-acelga",
                 titulo: "Buñuelos de Acelga Esponjosos",
                 ingredientesClave: ["acelga"],
                 descripcion: "La receta clásica de la abuela, ¡pero más fácil! Perfectos como entrada o para picar.",
-                ingredientes: [
-                    { cantidad: "1", unidad: "atado", nombre: "Acelga" },
-                    { cantidad: "2", unidad: "", nombre: "Huevos" },
-                    { cantidad: "1", unidad: "taza", nombre: "Harina leudante" },
-                    { cantidad: "2", unidad: "dientes", nombre: "Ajo picado" },
-                    { cantidad: "a gusto", unidad: "", nombre: "Sal y perejil" },
-                    { cantidad: "c/n", unidad: "", nombre: "Aceite para freír" }
-                ],
-                pasos: [
-                    "Lava bien la acelga y cocínala en agua hirviendo por 3 minutos. Escúrrela muy bien y pícala chiquita.",
-                    "En un bol, mezcla la acelga picada con los huevos, el ajo y el perejil.",
-                    "Incorpora la harina de a poco, mezclando hasta que no queden grumos. La mezcla debe quedar espesa.",
-                    "Calienta abundante aceite en una sartén. Con una cuchara, ve echando porciones de la mezcla.",
-                    "Fríe los buñuelos hasta que estén dorados por ambos lados. Retíralos y déjalos escurrir sobre papel de cocina."
-                ],
+                porcionesBase: 4,
+                ingredientes: [ { cantidad: "1", unidad: "atado", nombre: "Acelga" }, { cantidad: "2", unidad: "", nombre: "Huevos" }, { cantidad: "1", unidad: "taza", nombre: "Harina leudante" }, { cantidad: "2", unidad: "dientes", nombre: "Ajo picado" }, { cantidad: "a gusto", unidad: "", nombre: "Sal y perejil" }, { cantidad: "c/n", unidad: "", nombre: "Aceite para freír" } ],
+                pasos: ["Lava bien la acelga y cocínala en agua hirviendo por 3 minutos. Escúrrela muy bien y pícala chiquita.", "En un bol, mezcla la acelga picada con los huevos, el ajo y el perejil.", "Incorpora la harina de a poco, mezclando hasta que no queden grumos. La mezcla debe quedar espesa.", "Calienta abundante aceite en una sartén. Con una cuchara, ve echando porciones de la mezcla.", "Fríe los buñuelos hasta que estén dorados por ambos lados. Retíralos y déjalos escurrir sobre papel de cocina."],
                 tiempoPrep: "15 min",
                 tiempoCoccion: "10 min",
-                porciones: "4",
-                imagenUrl: "https://placehold.co/800x400/d4a373/333333?text=Buñuelos"
+                imagenUrl: "https://www.paulinacocina.net/wp-content/uploads/2021/01/bunuelos-de-acelga-fritos.jpg"
             },
             {
                 id: "bastones-batata",
                 titulo: "Bastones de Batata al Horno",
-                ingredientesClave: ["batata", "boniato"],
+                ingredientesClave: ["batata", "boniato", "papa"],
                 descripcion: "Más sanos que las papas fritas y con un toque dulce que te va a encantar.",
-                ingredientes: [
-                    { cantidad: "2", unidad: "grandes", nombre: "Batatas" },
-                    { cantidad: "2 cdas", unidad: "", nombre: "Aceite de oliva" },
-                    { cantidad: "1 cdita", unidad: "", nombre: "Pimentón dulce" },
-                    { cantidad: "a gusto", unidad: "", nombre: "Sal y pimienta" }
-                ],
-                pasos: [
-                    "Precalienta el horno a 200°C.",
-                    "Lava bien las batatas y córtalas en bastones, como si fueran papas fritas. Puedes dejarles la piel.",
-                    "En un bol grande, mezcla los bastones de batata con el aceite de oliva, el pimentón, la sal y la pimienta. Asegúrate de que queden bien cubiertos.",
-                    "Distribuye los bastones en una sola capa sobre una bandeja para horno con papel manteca.",
-                    "Hornea durante 25-30 minutos, dándolos vuelta a la mitad del tiempo, hasta que estén dorados y tiernos por dentro."
-                ],
+                porcionesBase: 2,
+                ingredientes: [{ cantidad: "2", unidad: "grandes", nombre: "Batatas" }, { cantidad: "2", unidad: "cdas", nombre: "Aceite de oliva" }, { cantidad: "1", unidad: "cdita", nombre: "Pimentón dulce" }, { cantidad: "a gusto", unidad: "", nombre: "Sal y pimienta" }],
+                pasos: ["Precalienta el horno a 200°C.", "Lava bien las batatas y córtalas en bastones, como si fueran papas fritas. Puedes dejarles la piel.", "En un bol grande, mezcla los bastones de batata con el aceite de oliva, el pimentón, la sal y la pimienta. Asegúrate de que queden bien cubiertos.", "Distribuye los bastones en una sola capa sobre una bandeja para horno con papel manteca.", "Hornea durante 25-30 minutos, dándolos vuelta a la mitad del tiempo, hasta que estén dorados y tiernos por dentro."],
                 tiempoPrep: "10 min",
                 tiempoCoccion: "30 min",
-                porciones: "2",
-                imagenUrl: "https://placehold.co/800x400/e67e22/FFFFFF?text=Bastones+de+Batata"
+                imagenUrl: "https://www.cucinare.tv/wp-content/uploads/2020/05/Bastones-de-batata.jpg"
             },
             {
-                id: "salteado-brocoli",
-                titulo: "Salteado Rápido de Brócoli y Pollo",
-                ingredientesClave: ["brócoli"],
-                descripcion: "Una cena completa, saludable y lista en menos de 20 minutos. ¡Ideal para un día ocupado!",
-                ingredientes: [
-                    { cantidad: "1", unidad: "planta", nombre: "Brócoli" },
-                    { cantidad: "1", unidad: "pechuga", nombre: "Pollo" },
-                    { cantidad: "1", unidad: "", nombre: "Cebolla" },
-                    { cantidad: "2 cdas", unidad: "", nombre: "Salsa de soja" },
-                    { cantidad: "a gusto", unidad: "", nombre: "Semillas de sésamo" }
-                ],
-                pasos: [
-                    "Corta el pollo en cubos y el brócoli en arbolitos pequeños. Pica la cebolla.",
-                    "Saltea el pollo en un wok o sartén grande con un poco de aceite hasta que esté dorado. Retíralo y resérvalo.",
-                    "En la misma sartén, saltea la cebolla y el brócoli hasta que estén tiernos pero crujientes.",
-                    "Vuelve a incorporar el pollo a la sartén. Añade la salsa de soja y cocina por 2 minutos más.",
-                    "Sirve inmediatamente, espolvoreando con semillas de sésamo."
-                ],
+                id: "pollo-al-horno-papas",
+                titulo: "Pollo al Horno con Papas y Romero",
+                descripcion: "Un clásico infalible que llena la casa de un aroma increíble. Tierno por dentro y dorado por fuera.",
+                ingredientesClave: ["pollo", "papa", "cebolla"],
+                porcionesBase: 4,
+                tiempoPrep: "15 min",
+                tiempoCoccion: "1 hora",
+                imagenUrl: "https://assets.elgourmet.com/wp-content/uploads/2023/03/cover_muv2kf_41_polloalhornoconpapas-1024x683.jpg.webp",
+                ingredientes: [{ cantidad: "4", unidad: "patas de", nombre: "Pollo" }, { cantidad: "4", unidad: "medianas", nombre: "Papas" }, { cantidad: "2", unidad: "", nombre: "Cebollas" }, { cantidad: "3", unidad: "dientes", nombre: "Ajo" }, { cantidad: "a gusto", unidad: "", nombre: "Romero fresco" }, { cantidad: "c/n", unidad: "", nombre: "Aceite de oliva, sal y pimienta" }],
+                pasos: ["Precalentar el horno a 200°C.", "Pelar las papas y cortarlas en rodajas gruesas. Cortar la cebolla en juliana.", "En una fuente para horno, colocar las papas y la cebolla. Rociar con aceite, sal y pimienta.", "Colocar las patas de pollo sobre las verduras. Salpimentar, añadir los ajos machacados y las ramas de romero.", "Hornear durante 1 hora o hasta que el pollo esté cocido y las papas doradas."]
+            },
+            {
+                id: "ensalada-garbanzos-palta",
+                titulo: "Ensalada Fresca de Garbanzos y Palta",
+                descripcion: "Una ensalada completa, rápida y llena de nutrientes. Ideal para un almuerzo ligero.",
+                ingredientesClave: ["garbanzo", "palta", "tomate", "cebolla"],
+                porcionesBase: 2,
                 tiempoPrep: "10 min",
-                tiempoCoccion: "10 min",
-                porciones: "2",
-                imagenUrl: "https://placehold.co/800x400/27ae60/FFFFFF?text=Salteado+de+Brócoli"
+                tiempoCoccion: "0 min",
+                imagenUrl: "https://www.gourmet.cl/wp-content/uploads/2017/04/Ensalada-de-garbanzos-Gourmet-1-e1539692470949.jpg",
+                ingredientes: [{ cantidad: "1", unidad: "lata de", nombre: "Garbanzos cocidos" }, { cantidad: "1", unidad: "grande", nombre: "Palta" }, { cantidad: "2", unidad: "", nombre: "Tomates perita" }, { cantidad: "0.5", unidad: "", nombre: "Cebolla morada" }, { cantidad: "a gusto", unidad: "", nombre: "Jugo de limón, aceite de oliva, sal" }],
+                pasos: ["Escurrir y enjuagar bien los garbanzos de lata.", "Cortar la palta y los tomates en cubos. Picar la cebolla morada bien chiquita.", "En un bol, mezclar todos los ingredientes con cuidado.", "Aderezar con abundante jugo de limón, un chorrito de aceite de oliva y sal.", "Servir inmediatamente para que la palta no se oxide."]
+            },
+            {
+                id: "guiso-lentejas",
+                titulo: "Guiso de Lentejas Clásico",
+                descripcion: "Un plato potente y reconfortante, ideal para los días de frío. Lleno de sabor y nutrientes.",
+                ingredientesClave: ["lentejas", "zanahoria", "papa", "cebolla", "morrón", "carne"],
+                porcionesBase: 6,
+                tiempoPrep: "20 min",
+                tiempoCoccion: "50 min",
+                imagenUrl: "https://www.clarin.com/img/2021/05/18/el-guiso-de-lentejas-un___HJw1dG5hG_2000x1500__1.jpg",
+                ingredientes: [{ cantidad: "500", unidad: "gr", nombre: "Lentejas" }, { cantidad: "250", unidad: "gr", nombre: "Carne para guiso (paleta, roast beef)" }, { cantidad: "1", unidad: "", nombre: "Cebolla" }, { cantidad: "1", unidad: "", nombre: "Zanahoria" }, { cantidad: "1", unidad: "", nombre: "Papa" }, { cantidad: "0.5", unidad: "", nombre: "Morrón rojo" }, { cantidad: "1", unidad: "diente", nombre: "Ajo" }, { cantidad: "1", "unidad": "hoja", nombre: "Laurel" }, { cantidad: "c/n", unidad: "", nombre: "Caldo de verduras, sal, pimentón" }],
+                pasos: ["Si usas lentejas secas, remójalas desde la noche anterior. Si no, puedes usar de lata al final.", "Corta la carne en cubos y dórala en una olla grande con un poco de aceite. Retira y reserva.", "En la misma olla, sofríe la cebolla, el morrón y el ajo picados. Añade la zanahoria en rodajas.", "Incorpora la carne de nuevo, las lentejas escurridas, la papa en cubos y la hoja de laurel.", "Cubre todo con caldo caliente, condimenta con sal y pimentón. Cocina a fuego bajo por 45-50 minutos, hasta que todo esté tierno."]
+            },
+            {
+                id: "tarta-espinaca",
+                titulo: "Tarta de Espinaca y Ricota",
+                descripcion: "La clásica tarta Pascualina, cremosa y deliciosa. Perfecta para una comida o para llevar.",
+                ingredientesClave: ["espinaca", "cebolla"],
+                porcionesBase: 8,
+                tiempoPrep: "25 min",
+                tiempoCoccion: "40 min",
+                imagenUrl: "https://www.lanacion.com.ar/resizer/v2/tarta-de-espinaca-y-ricota-casera-la-receta-mas-X365Y3Y4S5B6ZJ7X2Q4Z6Z4Y4E.jpg?auth=d824249a888c7f395669f9846b404d7e008b896f603c6248384a515f4a7c87c8&width=880&height=586&quality=70&smart=true",
+                ingredientes: [{ cantidad: "2", unidad: "atados", nombre: "Espinaca" }, { cantidad: "300", unidad: "gr", nombre: "Ricota" }, { cantidad: "1", unidad: "", nombre: "Cebolla" }, { cantidad: "100", unidad: "gr", nombre: "Queso rallado" }, { cantidad: "2", unidad: "", nombre: "Huevos" }, { cantidad: "1", unidad: "tapa de", nombre: "Masa para tarta (tipo Pascualina)" }],
+                pasos: ["Lava y cocina la espinaca al vapor o en agua hirviendo por 2 minutos. Escúrrela muy bien y pícala.", "Sofríe la cebolla picada hasta que esté transparente.", "En un bol, mezcla la espinaca, la ricota, la cebolla, el queso rallado y un huevo. Salpimenta a gusto.", "Forra una tartera con la masa. Vierte el relleno sobre la masa.", "Opcional: haz huecos en el relleno y coloca huevos crudos. Pinta los bordes con huevo batido.", "Hornea a 180°C durante 35-40 minutos, hasta que la masa esté dorada y el relleno firme."]
+            },
+            {
+                id: "pescado-con-arroz",
+                titulo: "Pescado a la Plancha con Arroz",
+                descripcion: "Una comida ligera, saludable y muy rápida de preparar. El pescado queda jugoso y el arroz es la guarnición perfecta.",
+                ingredientesClave: ["pescado", "arroz", "limón"],
+                porcionesBase: 2,
+                tiempoPrep: "10 min",
+                tiempoCoccion: "20 min",
+                imagenUrl: "https://www.comedera.com/wp-content/uploads/2022/04/merluza-a-la-plancha-con-arroz-shutterstock_1880945272.jpg",
+                ingredientes: [{ cantidad: "2", unidad: "filetes de", nombre: "Pescado blanco (merluza, lenguado)" }, { cantidad: "1", unidad: "taza de", nombre: "Arroz" }, { cantidad: "1", unidad: "", nombre: "Limón" }, { cantidad: "a gusto", unidad: "", nombre: "Perejil fresco" }, { cantidad: "c/n", unidad: "", nombre: "Aceite de oliva, sal y pimienta" }],
+                pasos: ["Cocina el arroz siguiendo las instrucciones del paquete (generalmente 1 taza de arroz por 2 de agua).", "Mientras se cocina el arroz, calienta una plancha o sartén grande con un chorrito de aceite de oliva.", "Salpimenta los filetes de pescado por ambos lados.", "Cocina el pescado a fuego medio-alto, unos 3-4 minutos por lado, hasta que esté dorado y se desarme fácilmente.", "Sirve el pescado sobre una cama de arroz, rocía con abundante jugo de limón y espolvorea con perejil picado."]
             }
         ];
 
@@ -225,8 +243,11 @@
             }
             
             const ingredientesBuscados = userInput.split(',').map(item => item.trim());
-            const recetasFiltradas = baseDeRecetas.filter(receta => 
-                ingredientesBuscados.some(ing => receta.ingredientesClave.includes(ing))
+            
+            const recetasFiltradas = baseDeRecetas.filter(r =>
+              ingredientesBuscados.some(ing =>
+                r.ingredientesClave.some(k => k.includes(ing) || ing.includes(k))
+              )
             );
             
             mostrarPagina(paginaResultados);
@@ -241,7 +262,7 @@
                     card.style.animationDelay = `${index * 100}ms`;
                     
                     card.innerHTML = `
-                        <img src="${receta.imagenUrl.replace('800x400', '600x400')}" alt="Foto de ${receta.titulo}" class="w-full h-40 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Imagen+no+disponible';">
+                        <img src="${receta.imagenUrl}" alt="Foto de ${receta.titulo}" class="w-full h-40 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/FFFFFF?text=Imagen+no+disponible';">
                         <div class="p-6 flex flex-col flex-grow">
                             <h3 class="text-xl font-bold mb-2">${receta.titulo}</h3>
                             <p class="text-gray-600 mb-4 flex-grow">${receta.descripcion}</p>
@@ -259,6 +280,30 @@
             const receta = baseDeRecetas.find(r => r.id === idReceta);
             if (!receta) return;
 
+            const comensalesSeleccionados = parseInt(comensalesInput.value, 10);
+            const factorEscala = comensalesSeleccionados / receta.porcionesBase;
+
+            const ingredientesEscaladosHTML = receta.ingredientes.map(ing => {
+                let cantidadEscalada = ing.cantidad;
+                const cantidadNumerica = parseFloat(ing.cantidad.replace(',', '.'));
+
+                if (!isNaN(cantidadNumerica)) {
+                    cantidadEscalada = (cantidadNumerica * factorEscala).toFixed(1);
+                    if (cantidadEscalada.endsWith('.0')) {
+                        cantidadEscalada = cantidadEscalada.substring(0, cantidadEscalada.length - 2);
+                    }
+                }
+                
+                return `
+                    <li class="ingredient-item">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 mr-3">
+                            <span><strong>${cantidadEscalada} ${ing.unidad}</strong> de ${ing.nombre}</span>
+                        </label>
+                    </li>
+                `;
+            }).join('');
+
             recetaContenido.innerHTML = `
                 <img src="${receta.imagenUrl}" alt="Foto de ${receta.titulo}" class="w-full h-64 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/800x400/cccccc/FFFFFF?text=Imagen+no+disponible';">
                 <div class="p-6 md:p-10">
@@ -267,16 +312,16 @@
                     
                     <div class="flex flex-wrap gap-4 text-center bg-orange-50 p-4 rounded-lg mb-8">
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500">PREPARACIÓN</p>
+                            <p class="text-sm text-gray-500"><i class="fa-solid fa-list-check mr-2"></i>PREPARACIÓN</p>
                             <p class="font-bold">${receta.tiempoPrep}</p>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500">COCCIÓN</p>
+                            <p class="text-sm text-gray-500"><i class="fa-solid fa-clock mr-2"></i>COCCIÓN</p>
                             <p class="font-bold">${receta.tiempoCoccion}</p>
                         </div>
                         <div class="flex-1">
-                            <p class="text-sm text-gray-500">PORCIONES</p>
-                            <p class="font-bold">${receta.porciones}</p>
+                            <p class="text-sm text-gray-500"><i class="fa-solid fa-users mr-2"></i>PORCIONES</p>
+                            <p class="font-bold">${comensalesSeleccionados}</p>
                         </div>
                     </div>
 
@@ -284,14 +329,7 @@
                         <div class="md:col-span-1">
                             <h3 class="text-xl font-bold mb-4 border-b-2 border-orange-500 pb-2">Ingredientes</h3>
                             <ul class="space-y-3">
-                                ${receta.ingredientes.map(ing => `
-                                    <li class="ingredient-item">
-                                        <label class="flex items-center cursor-pointer">
-                                            <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-orange-600 focus:ring-orange-500 mr-3">
-                                            <span><strong>${ing.cantidad} ${ing.unidad}</strong> de ${ing.nombre}</span>
-                                        </label>
-                                    </li>
-                                `).join('')}
+                                ${ingredientesEscaladosHTML}
                             </ul>
                         </div>
                         <div class="md:col-span-2">
@@ -311,12 +349,31 @@
             mostrarPagina(paginaRecetaCompleta);
         }
 
+        function volverAlBuscador() {
+            ingredientesInput.value = '';
+            comensalesInput.value = 2;
+            mostrarPagina(paginaPrincipal);
+        }
+
+        // --- INICIO DE LA LÓGICA "SORPRÉNDEME" ---
+        function sorprenderUsuario() {
+            // Lista de ingredientes populares para la función "Sorpréndeme"
+            const ingredientesSugeridos = ["papa", "pollo", "lentejas", "acelga", "batata", "palta", "arroz"];
+            // Elegir uno al azar
+            const ingredienteAzar = ingredientesSugeridos[Math.floor(Math.random() * ingredientesSugeridos.length)];
+            // Colocarlo en el input
+            ingredientesInput.value = ingredienteAzar;
+            // Ejecutar la búsqueda
+            buscarRecetas();
+        }
+        // --- FIN DE LA LÓGICA "SORPRÉNDEME" ---
+
         // --- ASIGNACIÓN DE EVENTOS ---
         buscarBtn.addEventListener('click', buscarRecetas);
-        volverABuscarBtn.addEventListener('click', () => mostrarPagina(paginaPrincipal));
+        volverABuscarBtn.addEventListener('click', volverAlBuscador);
         volverAResultadosBtn.addEventListener('click', () => mostrarPagina(paginaResultados));
+        sorprendemeBtn.addEventListener('click', sorprenderUsuario); // <-- Se asigna el evento
         
-        // Event listener para los botones "Ver Receta Completa" (usa delegación de eventos)
         document.addEventListener('click', function(e) {
             if (e.target && e.target.classList.contains('ver-receta-btn')) {
                 const id = e.target.getAttribute('data-id');
